@@ -511,6 +511,12 @@ const togetherSince = new Date('2024-02-14T00:00:00+07:00');
 
 export default function App() {
   const [entered, setEntered] = useState(() => new URLSearchParams(window.location.search).get('enter') === '1');
+  const [autoStartToken, setAutoStartToken] = useState(() => (entered ? Date.now() : 0));
+
+  const enterUniverse = () => {
+    setEntered(true);
+    setAutoStartToken(Date.now());
+  };
 
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-[#050816] text-white">
@@ -518,7 +524,7 @@ export default function App() {
       <StarBackground />
 
       <AnimatePresence mode="wait">
-        {!entered && <OpeningScreen key="opening" onEnter={() => setEntered(true)} />}
+        {!entered && <OpeningScreen key="opening" onEnter={enterUniverse} />}
       </AnimatePresence>
 
       {entered && (
@@ -528,7 +534,7 @@ export default function App() {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, ease: 'easeOut' }}
         >
-          <MusicPlayer />
+          <MusicPlayer autoStartToken={autoStartToken} />
           <main className="pb-32 sm:pb-24">
             <Hero />
             <MemoryTimeline />
@@ -694,11 +700,12 @@ function Hero() {
   );
 }
 
-function MusicPlayer() {
+function MusicPlayer({ autoStartToken }) {
   const audioRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(18);
   const [audioError, setAudioError] = useState(false);
+  const [playBlocked, setPlayBlocked] = useState(false);
 
   useEffect(() => {
     if (!isPlaying) return undefined;
@@ -710,7 +717,25 @@ function MusicPlayer() {
     return () => window.clearInterval(timer);
   }, [isPlaying]);
 
-  const toggleMusic = () => {
+  useEffect(() => {
+    if (!autoStartToken) return;
+
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    audio.play()
+      .then(() => {
+        setIsPlaying(true);
+        setAudioError(false);
+        setPlayBlocked(false);
+      })
+      .catch(() => {
+        setIsPlaying(false);
+        setPlayBlocked(true);
+      });
+  }, [autoStartToken]);
+
+  const toggleMusic = async () => {
     const audio = audioRef.current;
 
     if (!audio) return;
@@ -721,15 +746,33 @@ function MusicPlayer() {
       return;
     }
 
-    audio.play().catch(() => {
-      setAudioError(true);
-    });
-    setIsPlaying(true);
+    try {
+      await audio.play();
+      setIsPlaying(true);
+      setAudioError(false);
+      setPlayBlocked(false);
+    } catch {
+      setIsPlaying(false);
+      setPlayBlocked(true);
+    }
   };
 
   return (
     <aside className="fixed bottom-4 left-3 z-30 w-[min(18rem,calc(100vw-6.25rem))] rounded-lg border border-white/[0.12] bg-[#0B1026]/60 p-2.5 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-2xl sm:left-5 sm:w-80 sm:p-3">
-      <audio ref={audioRef} src={song} loop preload="metadata" onError={() => setAudioError(true)} onCanPlay={() => setAudioError(false)} />
+      <audio
+        ref={audioRef}
+        src={song}
+        loop
+        preload="auto"
+        onError={() => setAudioError(true)}
+        onCanPlay={() => setAudioError(false)}
+        onPause={() => setIsPlaying(false)}
+        onPlay={() => {
+          setIsPlaying(true);
+          setAudioError(false);
+          setPlayBlocked(false);
+        }}
+      />
       <div className="flex items-center gap-3">
         <img
           className="h-12 w-12 shrink-0 rounded-lg object-cover shadow-[0_0_34px_rgba(248,187,208,0.28)] sm:h-14 sm:w-14"
@@ -739,7 +782,7 @@ function MusicPlayer() {
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-semibold text-white sm:text-base">Shape Of My Heart</p>
           <p className="truncate text-xs text-[#C7D2FE]/70 sm:text-sm">
-            {audioError ? 'Audio file not found' : 'Backstreet Boys'}
+            {audioError ? 'Audio file not found' : playBlocked ? 'Tap to play music' : 'Backstreet Boys'}
           </p>
           <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/[0.12]">
             <div
