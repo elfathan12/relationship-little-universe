@@ -698,6 +698,7 @@ function MusicPlayer() {
   const audioRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(18);
+  const [audioError, setAudioError] = useState(false);
 
   useEffect(() => {
     if (!isPlaying) return undefined;
@@ -721,14 +722,14 @@ function MusicPlayer() {
     }
 
     audio.play().catch(() => {
-      // Ganti file song.mp3 dengan lagu asli agar audio benar-benar terdengar.
+      setAudioError(true);
     });
     setIsPlaying(true);
   };
 
   return (
     <aside className="fixed bottom-4 left-3 z-30 w-[min(18rem,calc(100vw-6.25rem))] rounded-lg border border-white/[0.12] bg-[#0B1026]/60 p-2.5 shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-2xl sm:left-5 sm:w-80 sm:p-3">
-      <audio ref={audioRef} src={song} loop preload="metadata" />
+      <audio ref={audioRef} src={song} loop preload="metadata" onError={() => setAudioError(true)} onCanPlay={() => setAudioError(false)} />
       <div className="flex items-center gap-3">
         <img
           className="h-12 w-12 shrink-0 rounded-lg object-cover shadow-[0_0_34px_rgba(248,187,208,0.28)] sm:h-14 sm:w-14"
@@ -737,7 +738,9 @@ function MusicPlayer() {
         />
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-semibold text-white sm:text-base">Shape Of My Heart</p>
-          <p className="truncate text-xs text-[#C7D2FE]/70 sm:text-sm">Backstreet Boys</p>
+          <p className="truncate text-xs text-[#C7D2FE]/70 sm:text-sm">
+            {audioError ? 'Audio file not found' : 'Backstreet Boys'}
+          </p>
           <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/[0.12]">
             <div
               className="h-full rounded-full bg-gradient-to-r from-[#C7D2FE] via-[#F8BBD0] to-[#6D5DF2] transition-all duration-500"
