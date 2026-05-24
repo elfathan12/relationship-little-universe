@@ -3,7 +3,6 @@ dist
 .env
 .env.local
 src/assets/music/*.mp3
-public/music/*.mp3
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

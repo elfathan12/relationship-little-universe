@@ -58,17 +58,9 @@ Gunakan rasio portrait agar gallery tetap cinematic. Ukuran aman: 1200 x 1600 px
 
 ## Mengganti Musik
 
-Taruh file MP3 lokal di `public/music/song.mp3`. File MP3 sengaja di-ignore dari Git agar lagu komersial tidak ikut ter-upload ke GitHub publik. Kalau mau deploy dengan audio, gunakan lagu milik sendiri atau lagu berlisensi.
+Taruh file MP3 di `public/music/song.mp3`. App memakai path `/music/song.mp3`, jadi file ini harus ikut masuk ke repository agar tersedia di Vercel.
 
-Untuk Vercel, file audio harus ikut masuk ke repository. Jika kamu memakai lagu yang kamu punya hak/izinnya, upload dengan:
-
-```bash
-git add -f public/music/song.mp3
-git commit -m "Add licensed music file"
-git push
-```
-
-Setelah push, Vercel akan redeploy dan path `/music/song.mp3` akan tersedia.
+Kalau mengganti lagu, gunakan nama file yang sama atau ubah nilai `song` di `src/App.jsx`.
 
 ## Mengubah Data
 
