@@ -974,7 +974,7 @@ function PhotoGalaxy() {
         A gallery of small universes, each one holding a feeling I never want to forget.
       </p>
 
-      <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-7 grid grid-cols-2 gap-3 sm:mt-12 sm:gap-5 lg:grid-cols-3">
         {galleryItems.map((item, index) => (
           <GalleryCard key={item.caption} item={item} index={index} />
         ))}
@@ -988,13 +988,13 @@ function GalleryCard({ item, index }) {
 
   return (
     <motion.figure
-      className="glass-card group overflow-hidden p-2"
+      className="glass-card group overflow-hidden p-1.5 sm:p-2"
       initial={{ opacity: 0, y: 28 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.25 }}
       transition={{ duration: 0.55, delay: index * 0.05, ease: 'easeOut' }}
     >
-      <div className="relative aspect-[4/5] overflow-hidden rounded-lg border border-white/10">
+      <div className="relative h-[16.25rem] overflow-hidden rounded-lg border border-white/10 sm:h-auto sm:aspect-[4/5]">
         {!broken ? (
           <img
             className="h-full w-full object-cover transition duration-700 group-hover:scale-[1.08]"
@@ -1009,7 +1009,9 @@ function GalleryCard({ item, index }) {
         )}
         <div className="pointer-events-none absolute inset-0 border border-[#F8BBD0]/0 transition duration-500 group-hover:border-[#F8BBD0]/[0.55] group-hover:shadow-[0_0_34px_rgba(248,187,208,0.28)]" />
       </div>
-      <figcaption className="px-2 py-4 text-center text-sm text-[#C7D2FE]/[0.78]">{item.caption}</figcaption>
+      <figcaption className="px-1.5 py-2 text-center text-xs leading-5 text-[#C7D2FE]/[0.78] sm:px-2 sm:py-4 sm:text-sm">
+        {item.caption}
+      </figcaption>
     </motion.figure>
   );
 }
